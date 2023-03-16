@@ -1,0 +1,105 @@
+#!/bin/bash
+
+USAGE_CHECK_ARGUMENT="-c|--check <CHECK>"
+USAGE_RETRIES_ARGUMENT="-r|--retries <RETRIES>"
+USAGE_DELAY_ARGUMENT="-d|--delay <DELAY>"
+USAGE="Usage: $0 \ 
+    [-h|--help] \
+    [-a|--analyze-cmd <ANALYZE_CMD>] \
+    $USAGE_CHECK_ARGUMENT \
+    $USAGE_RETRIES_ARGUMENT \
+    $USAGE_DELAY_ARGUMENT \
+    <command>"
+
+VERBOSE="no"
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -a|--analyze-cmd)
+            export ANALYZE_CMD="$2"
+            shift 2
+            ;;
+        -r|--retries)
+            export RETRIES="$2"
+            shift 2
+            ;;
+        -d|--delay)
+            export DELAY="$2"
+            shift 2
+            ;;
+        -v|--verbose)
+            export VERBOSE="yes"
+            shift 1
+            ;;
+        -h|--help)
+            echo $USAGE
+            break
+            ;;
+        *)
+            if [[ "$1" =~ ^- ]]; then
+                echo "Error: Unknown parameter: $1"
+            fi
+            break
+            ;;
+    esac
+done
+
+ARGUMENT_ERROR="no"
+if [ -z "$RETRIES" ]; then
+    echo "Missing argument: $USAGE_RETRIES_ARGUMENT"
+    ARGUMENT_ERROR="yes"
+fi
+
+if [ -z "$DELAY" ]; then
+    echo "Missing argument: $USAGE_DELAY_ARGUMENT"
+    ARGUMENT_ERROR="yes"
+fi
+
+#if [ -z "$CHECK" ]; then
+#    echo "Missing argument: $USAGE_CHECK_ARGUMENT"
+#    ARGUMENT_ERROR="yes"
+#fi
+
+if [ "$#" -lt 1 ]; then
+    echo "Missing argument: <command>"
+    ARGUMENT_ERROR="yes"
+fi
+
+if [ "$ARGUMENT_ERROR" == "yes" ]; then
+    echo $USAGE
+    exit 1;
+fi
+
+CMD=$1
+
+COMPLETE_CMD="$CMD"
+if [ -n "$ANALYZE_CMD" ]; then
+    COMPLETE_CMD+=" | $ANALYZE_CMD"
+fi
+
+#echo "$COMPLETE_CMD"
+
+SUCCESS="no"
+RETRIES_COUNT=0
+while true; do
+    (( RETRIES_COUNT++ ))
+    if [ "$VERBOSE" == "yes" ]; then echo "evaluate '$COMPLETE_CMD'"; fi
+    eval "$COMPLETE_CMD" >/dev/null
+    if [ "$?" = 0 ]; then
+        SUCCESS="yes"
+        if [ "$VERBOSE" == "yes" ]; then echo "success evaluating '$COMPLETE_CMD'"; fi
+        break
+    fi
+    if [ "$VERBOSE" == "yes" ]; then echo "evaluation was not succesfull, ($(( RETRIES - RETRIES_COUNT)) retries left)"; fi
+    if [ "$RETRIES_COUNT" -ge "$RETRIES" ]; then
+        SUCCESS="no"
+        if [ "$VERBOSE" == "yes" ]; then echo "failed evaluating '$COMPLETE_CMD' $RETRIES_COUNT times"; fi
+        break
+    fi
+    sleep $DELAY
+done
+
+if [ "$SUCCESS" == "no" ]; then
+    exit 1
+fi
+
+exit 0
