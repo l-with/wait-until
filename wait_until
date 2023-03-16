@@ -3,7 +3,7 @@
 USAGE_CHECK_ARGUMENT="-c|--check <CHECK>"
 USAGE_RETRIES_ARGUMENT="-r|--retries <RETRIES>"
 USAGE_DELAY_ARGUMENT="-d|--delay <DELAY>"
-USAGE="Usage: $0 \ 
+USAGE="Usage: $0 \
     [-h|--help] \
     [-v|--verbose] \
     $USAGE_CHECK_ARGUMENT \
