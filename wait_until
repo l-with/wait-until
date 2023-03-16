@@ -5,17 +5,18 @@ USAGE_RETRIES_ARGUMENT="-r|--retries <RETRIES>"
 USAGE_DELAY_ARGUMENT="-d|--delay <DELAY>"
 USAGE="Usage: $0 \ 
     [-h|--help] \
-    [-a|--analyze-cmd <ANALYZE_CMD>] \
+    [-v|--verbose] \
     $USAGE_CHECK_ARGUMENT \
     $USAGE_RETRIES_ARGUMENT \
     $USAGE_DELAY_ARGUMENT \
     <command>"
 
 VERBOSE="no"
+ARGUMENT_ERROR="no"
 while [[ $# -gt 0 ]]; do
     case "$1" in
-        -a|--analyze-cmd)
-            export ANALYZE_CMD="$2"
+        -c|--check)
+            export CHECK="$2"
             shift 2
             ;;
         -r|--retries)
@@ -37,13 +38,13 @@ while [[ $# -gt 0 ]]; do
         *)
             if [[ "$1" =~ ^- ]]; then
                 echo "Error: Unknown parameter: $1"
+                ARGUMENT_ERROR="yes"
             fi
             break
             ;;
     esac
 done
 
-ARGUMENT_ERROR="no"
 if [ -z "$RETRIES" ]; then
     echo "Missing argument: $USAGE_RETRIES_ARGUMENT"
     ARGUMENT_ERROR="yes"
@@ -53,11 +54,6 @@ if [ -z "$DELAY" ]; then
     echo "Missing argument: $USAGE_DELAY_ARGUMENT"
     ARGUMENT_ERROR="yes"
 fi
-
-#if [ -z "$CHECK" ]; then
-#    echo "Missing argument: $USAGE_CHECK_ARGUMENT"
-#    ARGUMENT_ERROR="yes"
-#fi
 
 if [ "$#" -lt 1 ]; then
     echo "Missing argument: <command>"
@@ -72,8 +68,8 @@ fi
 CMD=$1
 
 COMPLETE_CMD="$CMD"
-if [ -n "$ANALYZE_CMD" ]; then
-    COMPLETE_CMD+=" | $ANALYZE_CMD"
+if [ -n "$CHECK" ]; then
+    COMPLETE_CMD+=" | $CHECK"
 fi
 
 #echo "$COMPLETE_CMD"
