@@ -15,7 +15,7 @@ wait_until --delay 1 --retries 3 --verbose 'cat wait_until | grep text | wc -l |
 ## wait until with curl
 
 ```bash
-wait_util -delay 10 -retries 42 --check 'grep 402' 'curl --no-progress-meter --connect-timeout 10 --retry 42 --retry-delay 10 --output /dev/null/ --write-out "%{http_code}" http://example.com/api/endpoint'
+wait_until -delay 10 -retries 42 --check 'grep 402' 'curl --no-progress-meter --connect-timeout 10 --retry 42 --retry-delay 10 --output /dev/null/ --write-out "%{http_code}" http://example.com/api/endpoint'
 
 wait_until -v -d 1 -r 5 -c 'grep -e 100 -e 404' 'curl --silent --no-progress-meter --connect-timeout 5 --retry 5 --retry-delay 1 --write-out "%{http_code}" http://example.com/api/endpoint'
 ```
