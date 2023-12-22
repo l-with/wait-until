@@ -5,6 +5,7 @@ USAGE_RETRIES_ARGUMENT="-r|--retries <RETRIES>"
 USAGE_DELAY_ARGUMENT="-d|--delay <DELAY>"
 USAGE="Usage: $0 \
     [-h|--help] \
+    [-t|--trace] \
     [-v|--verbose] \
     $USAGE_CHECK_ARGUMENT \
     $USAGE_RETRIES_ARGUMENT \
@@ -26,6 +27,10 @@ while [[ $# -gt 0 ]]; do
         -d|--delay)
             export DELAY="$2"
             shift 2
+            ;;
+        -t|--trace)
+            export TRACE="yes"
+            shift 1
             ;;
         -v|--verbose)
             export VERBOSE="yes"
@@ -79,7 +84,11 @@ RETRIES_COUNT=0
 while true; do
     (( RETRIES_COUNT++ ))
     if [ "$VERBOSE" == "yes" ]; then echo "evaluate '$COMPLETE_CMD'"; fi
-    eval "$COMPLETE_CMD" >/dev/null
+    if [ "$TRACE" == "yes" ]; then 
+        eval "$COMPLETE_CMD"
+    else
+        eval "$COMPLETE_CMD" >/dev/null
+    fi
     if [ "$?" = 0 ]; then
         SUCCESS="yes"
         if [ "$VERBOSE" == "yes" ]; then echo "success evaluating '$COMPLETE_CMD'"; fi
